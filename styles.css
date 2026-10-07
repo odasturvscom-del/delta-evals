@@ -44,3 +44,4 @@ svg text{font:11px Inter,system-ui,sans-serif;fill:#64748b}
 .tag{font-size:11px;font-weight:700;color:#b45309;background:var(--warnb);padding:1px 7px;border-radius:99px;margin-left:6px}
 @media (max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}.g2,.g11{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
 @media (max-width:760px){.side{position:fixed;left:-250px;z-index:30;transition:left .2s}.side.open{left:0}.menu{display:block}.view{padding:18px 14px 50px}.top{padding:10px 14px}.g6{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr}.fbar .n{width:120px}.kv{grid-template-columns:90px 1fr}.gate{flex-wrap:wrap}.gate .btn{margin-left:0}#runBtn{padding:8px 10px}}
+.modal[hidden]{display:none}
