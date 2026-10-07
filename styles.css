@@ -113,3 +113,21 @@ table.heat td,table.heat th{text-align:center}table.heat td:first-child,table.he
 .howto p{margin:6px 0 0;font-size:14px;color:#4b5563;line-height:1.45}
 @media(max-width:700px){.outpick{width:100%}}
 .card.ans .chead{flex-wrap:wrap;gap:6px}.card.ans .pill{white-space:normal;max-width:100%}.card.ans{min-width:0}
+.ltargets{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.ltarget{display:flex;align-items:center;gap:10px;border:1px solid #e5e7eb;border-radius:16px;padding:12px 14px;cursor:pointer;background:#fff;min-width:0}
+.ltarget span{display:flex;flex-direction:column;min-width:0;flex:1}.ltarget small{color:#6b7280;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lx{border:0;background:#f3f4f6;width:28px;height:28px;border-radius:99px;cursor:pointer;font-size:16px;flex:none}
+.lrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.lrow label,.laddf label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#374151;min-width:0}
+.lrow select,.laddf select,.laddf input,.laddf textarea,.lcheck select,.lcheck input,[data-l=pick-run]{height:42px;border:1px solid #d9dde4;border-radius:12px;padding:0 12px;font:inherit;font-size:14px;background:#fff;max-width:100%}
+.laddf textarea{height:auto;padding:10px 12px;resize:vertical}
+.laddf{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;border:1px dashed #cbd5e1;border-radius:16px;padding:16px;margin:14px 0}
+.laddf .full,.laddf .lhelp{grid-column:1/-1}.lhelp{margin:0;font-size:13px}
+.lcheck{display:flex;gap:8px;margin-bottom:8px}.lcheck input{flex:1;min-width:0}
+.lmini{border:1px solid #d9dde4;background:#fff;border-radius:99px;padding:5px 12px;margin-right:6px;cursor:pointer;font:inherit;font-size:13px}
+.lclip{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lsum{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.lcell{border:0;background:none;cursor:pointer;padding:0}
+.ldet pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px;font-size:13px;max-height:220px;overflow:auto}
+.ldet p{margin:4px 0 12px}.lck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:13px}.lck small{color:#6b7280}
+.modal-card{max-height:86vh;overflow:auto}
+button[disabled]{opacity:.5;cursor:not-allowed}

@@ -626,6 +626,7 @@
     else if (seg[0] === 'test') { html = testView(seg[1], q); nav = 'suites'; }
     else if (seg[0] === 'compare') { html = compareView(q); nav = 'compare'; }
     else if (seg[0] === 'triage') { html = triageView(q); nav = 'triage'; }
+    else if (seg[0] === 'live') { html = window.DeltaLive.view(); nav = 'live'; }
     else if (seg[0] === 'outside') { html = outsideView(q); nav = 'outside'; }
     else if (seg[0] === 'costs') { html = costsView(); nav = 'costs'; }
     else if (seg[0] === 'settings') { html = settingsView(); nav = 'settings'; }
