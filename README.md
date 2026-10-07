@@ -1,14 +1,17 @@
 # Delta · Agent eval workbench
 
-First demo of Delta: test suites for AI agents that run on every release, with pass rates, failure types and regressions, plus a release gate that blocks a bad build.
+Demo of Delta: test suites for AI agents that run on every release, with pass rates, failure types, regressions and a release gate that blocks a bad build.
 
-**What's in the demo**
-- Overview per agent: release gate, pass rate, regressions, fixes, flaky tests, cost and latency
-- Pass rate trend by release, suite-by-release heatmap, failure types
-- Release detail: suite comparison with the previous release, filterable test results
-- Test detail: input, expected behaviour, history across releases and the failing run's trace with the grader's verdict
-- "Run evals" simulates a new release run end to end
+**Features**
+- Eval dashboard per agent: regressions, test results donut, pass rate trend, suite overview, release gate, failure types, suite x release heatmap
+- Releases and release detail with filters, suite comparison and CSV export
+- Compare any two releases: pass rate, cost, latency, suite deltas, what broke and what got fixed
+- Triage queue: owner, status and notes on every failing or flaky test
+- Configurable release gate rules (max drop, pass-rate floor, critical suites, flaky blocking)
+- Add your own test cases; they run in the next eval
+- Run evals: simulated run of every case x 3, saved as a new release
+- Cost and latency trends, test search (press /)
 
-Static site, no build step. Data is synthetic and deterministic (`data.js`).
+Static site, no build step. Demo data is synthetic (`data.js`); your changes are saved in the browser.
 
 Built by George Odiana · https://george-side-projects.vercel.app
