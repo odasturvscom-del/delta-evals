@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delta · Agent eval workbench</title>
+<meta name="description" content="Test suites for AI agents run on each release, with pass rates, failure types and regressions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><text x=%2716%27 y=%2723%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27 font-weight=%27bold%27>Δ</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<aside class="side" id="side">
+  <div class="brand"><span class="logo">Δ</span><div><b>Delta</b><small>Agent eval workbench</small></div></div>
+  <nav>
+    <a href="#/" data-nav="overview">Overview</a>
+    <a href="#/releases" data-nav="releases">Releases</a>
+    <a href="#/suites" data-nav="suites">Test suites</a>
+    <a href="#/failures" data-nav="failures">Failure types</a>
+  </nav>
+  <div class="side-foot">Demo data · v0.1<br><a href="https://george-side-projects.vercel.app" target="_blank" rel="noopener">Built by George Odiana</a></div>
+</aside>
+<main>
+  <header class="top">
+    <button class="menu" id="menu" aria-label="Menu">☰</button>
+    <div class="agents" id="agents"></div>
+    <button class="btn primary" id="runBtn">▶ Run evals</button>
+  </header>
+  <div id="view" class="view"></div>
+</main>
+<div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
