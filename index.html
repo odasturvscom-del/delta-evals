@@ -5,28 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Delta · Agent eval workbench</title>
 <meta name="description" content="Test suites for AI agents run on each release, with pass rates, failure types and regressions.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><text x=%2716%27 y=%2723%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27 font-weight=%27bold%27>Δ</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='16' fill='%230d2629'/><text x='16' y='22' font-size='17' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>Δ</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<aside class="side" id="side">
-  <div class="brand"><span class="logo">Δ</span><div><b>Delta</b><small>Agent eval workbench</small></div></div>
-  <nav>
-    <a href="#/" data-nav="overview">Overview</a>
-    <a href="#/releases" data-nav="releases">Releases</a>
-    <a href="#/suites" data-nav="suites">Test suites</a>
-    <a href="#/failures" data-nav="failures">Failure types</a>
-  </nav>
-  <div class="side-foot">Demo data · v0.1<br><a href="https://george-side-projects.vercel.app" target="_blank" rel="noopener">Built by George Odiana</a></div>
-</aside>
-<main>
-  <header class="top">
-    <button class="menu" id="menu" aria-label="Menu">☰</button>
-    <div class="agents" id="agents"></div>
-    <button class="btn primary" id="runBtn">▶ Run evals</button>
-  </header>
-  <div id="view" class="view"></div>
-</main>
+<header class="bgtop">
+  <div class="who"><span class="av">GO</span><b>George</b></div>
+  <div class="mailpill"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 7l9 6 9-6"/></svg>Delta · demo workspace</div>
+</header>
+<div class="panel">
+  <div class="phead">
+    <a class="word" href="#/">delta<small>evals.</small></a>
+    <div class="seg" id="agents"></div>
+  </div>
+  <div class="pbody">
+    <nav class="rail" id="rail">
+      <a href="#/" data-nav="overview" title="Overview"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg></a>
+      <a href="#/releases" data-nav="releases" title="Releases"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M8 3v4M16 3v4M8 14h5"/></svg></a>
+      <a href="#/suites" data-nav="suites" title="Test suites"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 4v2h6V4M9 11h6M9 15h4"/></svg></a>
+      <a href="#/failures" data-nav="failures" title="Failure types"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z" stroke-linejoin="round"/><path d="M12 10v4M12 17v.5"/></svg></a>
+      <a href="#run" data-run title="Run evals"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 5-5.5"/></svg></a>
+      <a href="#/layers" data-nav="heat" title="Suite heatmap" onclick="location.hash='#/';setTimeout(()=>document.getElementById('heat')?.scrollIntoView({behavior:'smooth'}),60);return false"><svg viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></svg></a>
+    </nav>
+    <main id="view" class="view"></main>
+  </div>
+</div>
 <div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
 <script src="data.js"></script>
 <script src="app.js"></script>
