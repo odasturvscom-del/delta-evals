@@ -460,6 +460,7 @@
 
   function handleAction(el) {
     const act = el.dataset.action;
+    if (act === 'rerun-outside') { toast('Comparison re-run: same tests, same scores. Demo data stays fixed.'); return; }
     if (act === 'save-triage') {
       triage[el.dataset.test] = { status: $('#trStatus').value, owner: $('#trOwner').value, note: $('#trNote').value.slice(0, 1000), at: Date.now() };
       LS.set('delta-triage', triage); toast('Triage saved'); render();
@@ -533,6 +534,82 @@
   }
 
   // ---------- shell ----------
+  // ---------- outside agents: same tests on outside models (illustrative) ----------
+  const OUTSIDE = [
+    { id: 'yours', name: 'Your agent', maker: 'Built by your team', color: '#0d2629', bias: { tool: 0.06, ground: 0.05, authority: 0.08, safety: 0.04, multistep: 0.03, format: 0.05 }, cost: 0.0062, lat: 3.1 },
+    { id: 'gpt', name: 'OpenAI GPT', maker: 'OpenAI API', color: '#10a37f', bias: { tool: 0.05, ground: 0.02, authority: -0.02, safety: 0.03, multistep: 0.04, format: 0.06 }, cost: 0.0094, lat: 3.6 },
+    { id: 'grok', name: 'xAI Grok', maker: 'xAI API', color: '#6366f1', bias: { tool: 0.02, ground: -0.03, authority: -0.06, safety: -0.07, multistep: 0.02, format: 0.01 }, cost: 0.0071, lat: 2.9 },
+    { id: 'claude', name: 'Anthropic Claude', maker: 'Anthropic API', color: '#d97757', bias: { tool: 0.04, ground: 0.04, authority: 0.02, safety: 0.05, multistep: 0.03, format: 0.03 }, cost: 0.0102, lat: 3.4 },
+    { id: 'llama', name: 'Meta Llama', maker: 'Open model, hosted', color: '#1e8fff', bias: { tool: -0.04, ground: -0.01, authority: -0.03, safety: 0.02, multistep: -0.06, format: -0.02 }, cost: 0.0031, lat: 2.4 },
+  ];
+  const OUT_SAMPLES = {
+    yours: { pass: 'Looked it up first, then answered from the record.', fail: 'Answered before the lookup finished.' },
+    gpt: { pass: 'Called the right tool, answered clearly and stopped.', fail: 'Did the action without asking first.' },
+    grok: { pass: 'Short, correct answer from the source.', fail: 'Filled a gap with a confident guess.' },
+    claude: { pass: 'Checked the source, asked before acting, then answered.', fail: 'Refused a safe request it should have handled.' },
+    llama: { pass: 'Correct, but needed a second tool call.', fail: 'Lost track halfway through the task.' },
+  };
+  function outsideResults() {
+    const ts = agentTests(state.agent);
+    const res = {};
+    OUTSIDE.forEach((m) => {
+      res[m.id] = {};
+      ts.forEach((t) => {
+        const base = 0.74 + (m.bias[t.suiteId] || 0);
+        const r = (hash(m.id + '|' + t.id) % 1000) / 1000;
+        const passes = r < base - 0.08 ? 3 : r < base + 0.06 ? 1 + (hash(t.id + m.id) % 2) : 0;
+        res[m.id][t.id] = { passes, trials: 3 };
+      });
+    });
+    return { ts, res };
+  }
+  function outsideView(q) {
+    const { ts, res } = outsideResults();
+    const a = agentById(state.agent);
+    const rows = OUTSIDE.map((m) => {
+      const rs = ts.map((t) => res[m.id][t.id]);
+      const rate = rs.filter((r) => statusOf(r) === 'pass').length / ts.length;
+      const suite = {}; SUITES.forEach((s) => { const x = ts.filter((t) => t.suiteId === s.id); suite[s.id] = x.length ? x.filter((t) => statusOf(res[m.id][t.id]) === 'pass').length / x.length : 0; });
+      const crit = SUITES.filter((s) => isCritical(s.id)).map((s) => suite[s.id]);
+      const halluc = ts.filter((t) => t.failureType === 'hallucination' && statusOf(res[m.id][t.id]) !== 'pass').length;
+      const overstep = ts.filter((t) => t.failureType === 'overstep' && statusOf(res[m.id][t.id]) !== 'pass').length;
+      return { m, rate, suite, crit: crit.length ? crit.reduce((x, y) => x + y, 0) / crit.length : 0, halluc, overstep, perPass: m.cost / Math.max(rate, 0.01) };
+    });
+    const best = rows.slice().sort((x, y) => y.rate - x.rate)[0];
+    const safest = rows.slice().sort((x, y) => y.crit - x.crit)[0];
+    const cheapest = rows.slice().sort((x, y) => x.perPass - y.perPass)[0];
+    const pick = q.get('t') && ts.find((t) => t.id === q.get('t'));
+    const sample = pick || ts.find((t) => new Set(OUTSIDE.map((m) => statusOf(res[m.id][t.id]))).size > 1) || ts[0];
+    return hero(`Run your ${a.name.toLowerCase()} tests on outside models and see who does the job best`, 'Outside agents') + `
+    <div class="note-demo">Demo scores for illustration only. These are not real benchmark results for any company's model.</div>
+    <div class="grid g4 statrow" style="margin-top:16px">
+      <div class="card stat"><div class="l">Highest pass rate</div><div class="big">${pct(best.rate, 0)}</div><div class="sm">${esc(best.m.name)}</div></div>
+      <div class="card stat"><div class="l">Safest on critical suites</div><div class="big">${pct(safest.crit, 0)}</div><div class="sm">${esc(safest.m.name)}</div></div>
+      <div class="card stat"><div class="l">Cheapest per passing task</div><div class="big">$${cheapest.perPass.toFixed(4)}</div><div class="sm">${esc(cheapest.m.name)}</div></div>
+      <div class="card stat"><div class="l">Same tests for everyone</div><div class="big">${ts.length}</div><div class="sm">test cases × 3 runs each</div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><div class="chead"><h2>Leaderboard</h2><button class="pillbtn sm" data-action="rerun-outside">Re-run comparison</button></div>
+      <div class="tw"><table><thead><tr><th>Model</th><th>Pass rate</th><th>Critical suites</th><th>Made-up facts</th><th>Acted without asking</th><th>Cost per passing task</th><th>p95</th></tr></thead><tbody>
+      ${rows.slice().sort((x, y) => y.rate - x.rate).map((r, i) => `<tr><td><span class="mdot" style="background:${r.m.color}"></span><b>${esc(r.m.name)}</b>${i === 0 ? ' <span class="pill ok">Top</span>' : ''}<div class="sm">${esc(r.m.maker)}</div></td><td><b>${pct(r.rate, 0)}</b><div class="track thin" style="margin-top:6px"><i style="width:${r.rate * 100}%;background:${color(r.rate)}"></i></div></td><td>${pct(r.crit, 0)}</td><td>${r.halluc ? `<span class="pill bad">${r.halluc}</span>` : '<span class="pill mute">0</span>'}</td><td>${r.overstep ? `<span class="pill bad">${r.overstep}</span>` : '<span class="pill mute">0</span>'}</td><td>$${r.perPass.toFixed(4)}</td><td>${r.m.lat.toFixed(1)}s</td></tr>`).join('')}
+      </tbody></table></div></div>
+    <div class="card" style="margin-top:16px"><div class="chead"><h2>By suite</h2></div>
+      <div class="tw"><table class="heat"><thead><tr><th>Model</th>${SUITES.map((s) => `<th>${esc(s.name)}${isCritical(s.id) ? ' <span class="tag">critical</span>' : ''}</th>`).join('')}</tr></thead><tbody>
+      ${rows.map((r) => `<tr><td><span class="mdot" style="background:${r.m.color}"></span>${esc(r.m.name)}</td>${SUITES.map((s) => `<td><span class="hcell" style="background:${color(r.suite[s.id])}">${Math.round(r.suite[s.id] * 100)}</span></td>`).join('')}</tr>`).join('')}
+      </tbody></table></div></div>
+    <div class="card" style="margin-top:16px"><div class="chead"><h2>Same test, five answers</h2>
+      <select id="outPick" class="outpick">${ts.map((t) => `<option value="${t.id}" ${t === sample ? 'selected' : ''}>${esc(suiteById(t.suiteId).name)} · ${esc(t.name)}</option>`).join('')}</select></div>
+      <p class="sub" style="margin:0 0 12px">Prompt: "${esc(sample.prompt || sample.input || sample.name)}"<br>Expected: ${esc(sample.expected)}</p>
+      <div class="grid g4">${OUTSIDE.map((m) => { const r = res[m.id][sample.id], st = statusOf(r); return `<div class="card ans"><div class="chead" style="margin:0 0 8px"><b><span class="mdot" style="background:${m.color}"></span>${esc(m.name)}</b>${statusPill(r)}</div><p>${esc(st === 'pass' ? OUT_SAMPLES[m.id].pass : OUT_SAMPLES[m.id].fail)}</p>${st !== 'pass' ? `<span class="pill mute">${esc(FAILURE_TYPES[sample.failureType].label)}</span>` : ''}</div>`; }).join('')}</div></div>
+    <div class="card" style="margin-top:16px"><div class="chead"><h2>How it works</h2></div>
+      <div class="grid g4 howto">
+        <div><b>1. Connect</b><p>Add an API key for each model, or the endpoint of your own agent. Keys stay in your workspace.</p></div>
+        <div><b>2. Pick tests</b><p>Use the same suites you run on every release, so the comparison is fair.</p></div>
+        <div><b>3. Run</b><p>Each test runs 3 times per model. Rules and a judge model score every answer.</p></div>
+        <div><b>4. Decide</b><p>See who's best on quality, safety and cost before you switch models.</p></div>
+      </div>
+      <p class="sub" style="margin:14px 0 0">Works with anything you can call through an API. Custom GPTs inside ChatGPT can't be called from outside, so they can't be tested here.</p></div>`;
+  }
+
   function renderAgents() {
     $('#agents').innerHTML = AGENTS.map((a) => `<button class="pillbtn ${a.id === state.agent ? 'on' : ''}" data-agent="${a.id}">${a.name.replace(' Agent', '')}</button>`).join('') + `<button class="pillbtn" id="runBtn">Run evals</button>`;
   }
@@ -549,6 +626,7 @@
     else if (seg[0] === 'test') { html = testView(seg[1], q); nav = 'suites'; }
     else if (seg[0] === 'compare') { html = compareView(q); nav = 'compare'; }
     else if (seg[0] === 'triage') { html = triageView(q); nav = 'triage'; }
+    else if (seg[0] === 'outside') { html = outsideView(q); nav = 'outside'; }
     else if (seg[0] === 'costs') { html = costsView(); nav = 'costs'; }
     else if (seg[0] === 'settings') { html = settingsView(); nav = 'settings'; }
     else if (seg[0] === 'new-test') { html = newTestView(); nav = 'suites'; }
@@ -572,6 +650,7 @@
   });
   document.addEventListener('change', (e) => {
     if (e.target.id === 'suiteSel') { state.suite = e.target.value; render(); }
+    if (e.target.id === 'outPick') { location.hash = '#/outside?t=' + encodeURIComponent(e.target.value); return; }
     if (e.target.id === 'cmpA' || e.target.id === 'cmpB') location.hash = `#/compare?a=${encodeURIComponent($('#cmpA').value)}&b=${encodeURIComponent($('#cmpB').value)}`;
   });
   document.addEventListener('keydown', (e) => {
